@@ -1,0 +1,133 @@
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Degel Masters</title>
+    <!-- CSS -->
+    <style> 
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2c2c2c;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            color: #f1f1f1;
+        }
+        #postContainer {
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+        }
+        .post {
+            border: 1px solid #555;
+            padding: 15px;
+            margin: 10px 0;
+            background: #444;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+        .post img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        textarea, input {
+            width: 90%;
+            max-width: 500px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #666;
+            background: #333;
+            color: white;
+            display: block;
+            margin: 10px auto;
+        }
+        button {
+            background: #555;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 90%;
+            max-width: 200px;
+        }
+        button:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <!-- החלון -->
+    <h2>Degel Masters</h2>
+    <input type="file" id="imageInput" accept="image/*">
+    <textarea id="postInput" placeholder="?מה עשית/ה היום"></textarea>
+    <br>
+    <button onclick="addPost()">פרסם</button>
+    <div id="postContainer"></div>
+
+    <script>
+        function loadPosts() {
+            const posts = JSON.parse(localStorage.getItem("posts")) || [];
+            const container = document.getElementById("postContainer");
+            container.innerHTML = "";
+            posts.forEach((post, index) => {
+                const postElement = document.createElement("div");
+                postElement.className = "post";
+                let postContent = "";
+                if (post.image) {
+                    postContent += `<img src="${post.image}" alt="Uploaded Image">`;
+                }
+                postContent += `<p>${post.text}</p><button onclick="deletePost(${index})">מחק</button>`;
+                postElement.innerHTML = postContent;
+                container.appendChild(postElement);
+            });
+        }
+        // פוקציה
+        // פירסום
+        function addPost() {
+            const input = document.getElementById("postInput");
+            const fileInput = document.getElementById("imageInput");
+            const text = input.value.trim();
+            const file = fileInput.files[0];
+
+            if (text || file) {
+                const posts = JSON.parse(localStorage.getItem("posts")) || [];
+                let postObject = { text };
+                
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        postObject.image = event.target.result;
+                        posts.unshift(postObject);
+                        localStorage.setItem("posts", JSON.stringify(posts));
+                        loadPosts();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    posts.unshift(postObject);
+                    localStorage.setItem("posts", JSON.stringify(posts));
+                    loadPosts();
+                }
+                input.value = "";
+                fileInput.value = "";
+            }
+        }
+        // פונקציה
+        // מחיקה
+        function deletePost(index) {
+            let posts = JSON.parse(localStorage.getItem("posts"));
+            posts.splice(index, 1);
+            localStorage.setItem("posts", JSON.stringify(posts));
+            loadPosts();
+        }
+
+        window.onload = loadPosts;
+    </script>
+</body>
+</html>
